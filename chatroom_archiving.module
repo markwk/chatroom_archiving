@@ -64,8 +64,14 @@ function chatroom_archiving_archive_old_chat_nodes($nid) {
     unset($new_node->field_chatroom["und"][$delta]);
     $new_node->field_chatroom["und"][$delta]['chatroom']['chatroom_title'] = $chat["chatroom"]->get('title');
     $new_node->field_chatroom["und"][$delta]['chatroom']['chatroom_public'] = $chat["chatroom"]->get('public');
-    $new_node->field_chatroom["und"][$delta]['chatroom']['chatroom_roles'] = $chat["chatroom"]->get('allowedRoles');
-    $new_node->field_chatroom["und"][$delta]['chatroom']['chatroom_roles_post'] = $chat["chatroom"]->get('allowedPostRoles');
+    
+    $roles = $chat["chatroom"]->get('allowedRids');
+    foreach ($roles as $key => $value) {
+      if($value->read_only)
+        $new_node->field_chatroom["und"][$delta]['chatroom']['chatroom_read_only_roles'][] = $key;
+      else 
+        $new_node->field_chatroom["und"][$delta]['chatroom']['chatroom_write_roles'][] = $key;
+    } 
     $new_node->field_chatroom["und"][$delta]['chatroom']['chatroom_format'] = $chat["chatroom"]->get('format');
   }
   
@@ -94,8 +100,14 @@ function chatroom_archiving_object_to_field_array($chatroom) {
   $field_chatroom['chatroom_title'] = $chatroom->get('title');
   $field_chatroom['chatroom_public'] = $chatroom->get('public');
   $field_chatroom['chatroom_archived'] = $chatroom->get('archived');
-  $field_chatroom['chatroom_roles'] = $chatroom->get('allowedRoles');
-  $field_chatroom['chatroom_roles_post'] = $chatroom->get('allowedPostRoles');
+  $roles = $chatroom->get('allowedRids');
+  foreach ($roles as $key => $value) {
+    if($value->read_only)
+      $field_chatroom['chatroom_read_only_roles'][] = $key;
+    else 
+      $field_chatroom['chatroom_write_roles'][] = $key;
+  }
+  
   $field_chatroom['chatroom_format'] = $chatroom->get('format');
   return $field_chatroom;
 }
